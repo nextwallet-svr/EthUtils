@@ -5,7 +5,7 @@ import traceback
 import hexbytes
 from eth_utils import *
 from web3 import Web3, HTTPProvider, IPCProvider
-from Web3Utils import *
+from .Web3Utils import *
 from LogUtil import *
 
 web3 = getWeb3()
