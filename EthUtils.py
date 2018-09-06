@@ -8,72 +8,32 @@ from web3 import Web3, HTTPProvider, IPCProvider
 from .Web3Utils import *
 from LogUtil import *
 
-web3 = getWeb3()
+class TxReceiptException(Exception):
+    pass
 
 ######################################################################
-#多人钱包交易返回码
-# MW_STATUS_COMMON_PENDING = 0
-# MW_STATUS_SUBMISSION_SUCC = 1
-# MW_STATUS_EXECUTION_SUCC = 2
-# MW_STATUS_EXECUTION_FAIL = 3
-# MW_STATUS_WAIT_FOR_CONFIRM = 4
-# MW_STATUS_EXPIRED = 5
-# MW_STATUS_DEPOSIT_SUCC = 6
-# MW_STATUS_ADD_OWNER_SUCC = 7
-# MW_STATUS_ADD_OWNER_FAIL = 8
-# MW_STATUS_CREATE_SUCC = 9
-# MW_STATUS_CREATE_FAIL = 10
-# MW_STATUS_CONFIRM_FAIL = 11
-# MW_STATUS_ALL_CONFIRMED = 12
-# MW_STATUS_CONFIRM_APPROVE = 13
-# MW_STATUS_CONFIRM_DECLINE = 14
-# MW_STATUS_SUBMISSION_PENDING = 15
-# MW_STATUS_CREATE_PENDING = 16
-# MW_STATUS_WAIT_FOR_JOIN = 17
+# def getFuncAddOwnerSignature():
+#     return add_0x_prefix(function_signature_to_4byte_selector('addOwner(address,string,string)').hex())
 
-# #无效的交易id
-# MW_INNVALID_TX_ID = -1
+# def getFuncSendTransactionSignature():
+#     return add_0x_prefix(function_signature_to_4byte_selector('sendTransaction(address,uint256,uint256,string,bytes32)').hex())
 
-# #创建多人钱包的交易状态
-# MW_TX_STATUS_PENDING = 0      # 处于pending状态的钱包交易
-# MW_TX_STATUS_SUCC = 1  # 已被区块确认的钱包交易: 成功
-# MW_TX_STATUS_FAIL = 2  # 已被区块确认的钱包交易: 失败
-# MW_TX_STATUS_PROCESSED = 3    # 已被server发现并处理过的钱包交易
+# def getFuncConfirmTransactionSignature():
+#     return add_0x_prefix(function_signature_to_4byte_selector('confirmTransaction(uint256,uint256,string)').hex())
 
+# g_mw_function_signature = {}
+# def initMWFunctionSignature():
+#     g_mw_function_signature[MW_OP_JOIN] = getFuncAddOwnerSignature()
+#     g_mw_function_signature[MW_OP_SEND] = getFuncSendTransactionSignature()
+#     g_mw_function_signature[MW_OP_APPROVE] = getFuncConfirmTransactionSignature()
 
-# MW_OP_CREATE = 'create'
-# MW_OP_JOIN = 'join'
-# MW_OP_SEND = 'send'
-# MW_OP_APPROVE = 'approve'
-# MW_OP_EXECUTION = 'execution'
-# MW_OP_DEPOSIT = 'deposit'
-
-# MW_CONFIRM_CHOICE_APPROVE = 1
-# MW_CONFIRM_CHOICE_DECLINE = 2
-
-######################################################################
-def getFuncAddOwnerSignature():
-    return add_0x_prefix(function_signature_to_4byte_selector('addOwner(address,string,string)').hex())
-
-def getFuncSendTransactionSignature():
-    return add_0x_prefix(function_signature_to_4byte_selector('sendTransaction(address,uint256,uint256,string,bytes32)').hex())
-
-def getFuncConfirmTransactionSignature():
-    return add_0x_prefix(function_signature_to_4byte_selector('confirmTransaction(uint256,uint256,string)').hex())
-
-g_mw_function_signature = {}
-def initMWFunctionSignature():
-    g_mw_function_signature[MW_OP_JOIN] = getFuncAddOwnerSignature()
-    g_mw_function_signature[MW_OP_SEND] = getFuncSendTransactionSignature()
-    g_mw_function_signature[MW_OP_APPROVE] = getFuncConfirmTransactionSignature()
-
-def isMWTxInputByOp(mw_op, input):
-    if not g_mw_function_signature.__contains__(mw_op):
-        return False
-    signature = g_mw_function_signature[mw_op]
-    if (input.startswith(signature)):
-        return True
-    return False
+# def isMWTxInputByOp(mw_op, input):
+#     if not g_mw_function_signature.__contains__(mw_op):
+#         return False
+#     signature = g_mw_function_signature[mw_op]
+#     if (input.startswith(signature)):
+#         return True
+#     return False
 
 ######################################################################
 #判断一个地址是否是合约地址
@@ -150,26 +110,22 @@ def rightUnPad4Str(s, reserve_len):
     return s[:reserve_len]
 
 def tryGetTxByHash(tx_hash):
-    global web3
     raw_tx = None
     for i in range(1):
         raw_tx = getWeb3().eth.getTransaction(tx_hash)
         if (raw_tx is None):
-            # web3 = getWeb3()
-            debug('retry GetTxByHash, hash: %s, retry times: %d', tx_hash, i)
+            error('retry GetTxByHash, hash: %s, retry times: %d', tx_hash, i)
             continue
         else:
             break
     return raw_tx
 
 def tryGetTxReceiptByHash(tx_hash):
-    global web3
     raw_tx_receipt = None
     for i in range(1):
         raw_tx_receipt = getWeb3().eth.getTransactionReceipt(tx_hash)
         if (raw_tx_receipt is None):
-            # web3 = getWeb3()
-            debug('retry GetTxReceiptByHash, hash: %s, retry times: %d', tx_hash, i)
+            error('retry GetTxReceiptByHash, hash: %s, retry times: %d', tx_hash, i)
             continue
         else:
             break
