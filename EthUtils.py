@@ -12,30 +12,6 @@ class TxReceiptException(Exception):
     pass
 
 ######################################################################
-# def getFuncAddOwnerSignature():
-#     return add_0x_prefix(function_signature_to_4byte_selector('addOwner(address,string,string)').hex())
-
-# def getFuncSendTransactionSignature():
-#     return add_0x_prefix(function_signature_to_4byte_selector('sendTransaction(address,uint256,uint256,string,bytes32)').hex())
-
-# def getFuncConfirmTransactionSignature():
-#     return add_0x_prefix(function_signature_to_4byte_selector('confirmTransaction(uint256,uint256,string)').hex())
-
-# g_mw_function_signature = {}
-# def initMWFunctionSignature():
-#     g_mw_function_signature[MW_OP_JOIN] = getFuncAddOwnerSignature()
-#     g_mw_function_signature[MW_OP_SEND] = getFuncSendTransactionSignature()
-#     g_mw_function_signature[MW_OP_APPROVE] = getFuncConfirmTransactionSignature()
-
-# def isMWTxInputByOp(mw_op, input):
-#     if not g_mw_function_signature.__contains__(mw_op):
-#         return False
-#     signature = g_mw_function_signature[mw_op]
-#     if (input.startswith(signature)):
-#         return True
-#     return False
-
-######################################################################
 #判断一个地址是否是合约地址
 def isContractAddress(address):
     try:
@@ -177,3 +153,7 @@ def get_block_with_retry(block_num_or_hash, max_retry=3, interval=0.5):
         max_retry -= 1
         block = getWeb3().eth.getBlock(block_num_or_hash)
     return block
+
+def destroyFilter(filter):
+    if (filter):
+        getWeb3().eth.uninstallFilter(filter.filter_id)
