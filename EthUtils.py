@@ -4,12 +4,27 @@ import datetime
 import traceback
 import hexbytes
 from eth_utils import *
-from web3 import Web3, HTTPProvider, IPCProvider
+from web3 import Web3, HTTPProvider, IPCProvider, datastructures
 from .Web3Utils import *
 from LogUtil import *
 
 class TxReceiptException(Exception):
     pass
+
+
+class JSONEncoder(json.JSONEncoder):
+    '''处理ObjectId,该类型无法转为json'''
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            return datetime.datetime.strftime(o, '%Y-%m-%d %H:%M:%S')
+        elif isinstance(o, datastructures.AttributeDict):
+            return dict(o)
+        elif isinstance(o, hexbytes.HexBytes):
+            return o.hex()
+        return json.JSONEncoder.default(self, o)
+
+
+JSEncoder = JSONEncoder()
 
 ######################################################################
 #判断一个地址是否是合约地址
@@ -136,7 +151,7 @@ def getTransactionReceiptByHash(tx_hash):
         debug('getTransactionReceiptByHash: e: %s, tx_hash: %s', e, tx_hash)
         # raise (e)
         return None
-    return tx_receipt_dict
+    return json.loads(JSEncoder.encode(tx_receipt_dict))
 
 def get_input_method_signature(input):
     tmp_input = add_0x_prefix(input)
