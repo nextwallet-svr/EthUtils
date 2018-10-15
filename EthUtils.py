@@ -169,6 +169,25 @@ def get_block_with_retry(block_num_or_hash, max_retry=3, interval=0.5):
         block = getWeb3().eth.getBlock(block_num_or_hash)
     return block
 
+g_filter_map = {}
+
 def destroyFilter(filter):
-    if (filter):
-        getWeb3().eth.uninstallFilter(filter.filter_id)
+    global g_filter_map
+    if filter:
+        ret = getWeb3().eth.uninstallFilter(filter.filter_id)
+        if not ret:
+            error("uninstallFilter fail, filter.filter_id: %s", str(filter.filter_id))
+        else:
+            g_filter_map.pop(filter.filter_id)
+        return ret
+
+def createFilter(contract_event_obj, from_block_number, to_block_number, tag):
+    global g_filter_map
+    filter_func = getattr(contract_event_obj, 'createFilter')
+    filter = filter_func(fromBlock=from_block_number, toBlock=to_block_number)
+    if not filter:
+        error("createFilter fail, from_block_number: %d, to_block_number: %d",
+                from_block_number, to_block_number)
+    else:
+        g_filter_map[filter.filter_id] = tag
+    return filter
