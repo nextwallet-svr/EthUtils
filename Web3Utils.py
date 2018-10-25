@@ -36,3 +36,25 @@ def getWeb3():
 
     fatal('web3 reconnect attempt totally fail, attempt: %d', attempt)
     return web3
+
+def getWeb3ByGethUrl(geth_url):
+    for attempt in range(MAX_WEB3_AUTO_RECONNECT_ATTEMPTS):
+        try:
+            _web3 = Web3(HTTPProvider(geth_url, request_kwargs={'timeout': 15}))
+            if _web3 is None:
+                error('getWeb3ByGethUrl none, try connect web3 times: %d', attempt + 1)
+                raise(Exception('try connect web3 none'))
+
+            is_connected = _web3.isConnected()
+            if is_connected:
+                return _web3
+            else:
+                error('getWeb3ByGethUrl not connected, try connect web3 times: %d', attempt + 1)
+                raise(Exception('try connect web3 fail'))
+        except (Exception) as e:
+            wait_t = 0.5 * pow(2, attempt)
+            error('getWeb3ByGethUrl fail attempt: %d, e: %s, wait_t: %.1f', attempt, e, wait_t)
+            time.sleep(wait_t)
+
+    fatal('web3 reconnect attempt totally fail, attempt: %d', attempt)
+    return _web3
