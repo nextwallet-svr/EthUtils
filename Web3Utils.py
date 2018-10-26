@@ -49,20 +49,20 @@ def getWeb3Poa(_geth_url = None):
 
             _web3 = Web3(HTTPProvider(geth_url, request_kwargs={'timeout': 15}))
             if _web3 is None:
-                error('getWeb3ByGethUrl none, try connect web3 times: %d', attempt + 1)
+                error('getWeb3Poa none, try connect web3 times: %d', attempt + 1)
                 raise(Exception('try connect web3 none'))
 
-            web3.middleware_stack.inject(geth_poa_middleware, layer=0)
+            _web3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
             is_connected = _web3.isConnected()
             if is_connected:
                 return _web3
             else:
-                error('getWeb3ByGethUrl not connected, try connect web3 times: %d', attempt + 1)
+                error('getWeb3Poa not connected, try connect web3 times: %d', attempt + 1)
                 raise(Exception('try connect web3 fail'))
         except (Exception) as e:
             wait_t = 0.5 * pow(2, attempt)
-            error('getWeb3ByGethUrl fail attempt: %d, e: %s, wait_t: %.1f', attempt, e, wait_t)
+            error('getWeb3Poa fail attempt: %d, e: %s, wait_t: %.1f', attempt, e, wait_t)
             time.sleep(wait_t)
 
     fatal('web3 reconnect attempt totally fail, attempt: %d', attempt)
