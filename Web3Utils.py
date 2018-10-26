@@ -2,6 +2,7 @@ import time
 from web3 import Web3, HTTPProvider
 from ServerConfig import *
 from LogUtil import *
+from web3.middleware import geth_poa_middleware
 
 # web3 provider 最大重连次数
 MAX_WEB3_AUTO_RECONNECT_ATTEMPTS = 5
@@ -37,13 +38,21 @@ def getWeb3():
     fatal('web3 reconnect attempt totally fail, attempt: %d', attempt)
     return web3
 
-def getWeb3ByGethUrl(geth_url):
+def getWeb3Poa(_geth_url = None):
     for attempt in range(MAX_WEB3_AUTO_RECONNECT_ATTEMPTS):
         try:
+            geth_url = None
+            if _geth_url is None:
+                geth_url = GET_GETH_CONNECT_URL()
+            else:
+                geth_url = _geth_url
+
             _web3 = Web3(HTTPProvider(geth_url, request_kwargs={'timeout': 15}))
             if _web3 is None:
                 error('getWeb3ByGethUrl none, try connect web3 times: %d', attempt + 1)
                 raise(Exception('try connect web3 none'))
+
+            web3.middleware_stack.inject(geth_poa_middleware, layer=0)
 
             is_connected = _web3.isConnected()
             if is_connected:

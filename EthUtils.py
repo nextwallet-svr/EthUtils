@@ -160,13 +160,17 @@ def get_input_method_signature(input):
     return tmp_input[:10]
 
 def get_block_with_retry(block_num_or_hash, max_retry=3, interval=0.5):
-    block = getWeb3().eth.getBlock(block_num_or_hash)
-    while block is None and max_retry > 0:
-        error("getblock %s failed, retry after %s sec, max retry %s" %
-              (block_num_or_hash, interval, max_retry))
-        time.sleep(interval)
-        max_retry -= 1
+    block = None
+    try:
         block = getWeb3().eth.getBlock(block_num_or_hash)
+        while block is None and max_retry > 0:
+            error("getblock %s failed, retry after %s sec, max retry %s" %
+                  (block_num_or_hash, interval, max_retry))
+            time.sleep(interval)
+            max_retry -= 1
+            block = getWeb3().eth.getBlock(block_num_or_hash)
+    except (Exception) as e:
+        debug('getBlock: e: %s, block_num_or_hash: %s', e, block_num_or_hash)
     return block
 
 g_filter_map = {}
