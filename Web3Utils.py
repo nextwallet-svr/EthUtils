@@ -4,8 +4,8 @@ from ServerConfig import *
 from LogUtil import *
 from web3.middleware import geth_poa_middleware
 from web3.auto.infura import w3
+from web3.auto.infura.ropsten import ropsten_w3
 
-# web3 provider 最大重连次数
 MAX_WEB3_AUTO_RECONNECT_ATTEMPTS = 5
 
 web3 = None
@@ -14,7 +14,18 @@ def getWeb3():
     global web3
 
     if INFURA_API_SWITCH_ON:
-        web3 = w3
+        if CURR_ETH_NETWORK == "main":
+            web3 = w3
+        else:
+            web3 = ropsten_w3
+
+        is_connected = web3.isConnected()
+        if is_connected:
+            info('infura connect web3: %s', str(web3))
+            return web3
+        else:
+            error('infura not connect web3: %s', str(web3))
+            return web3
     else:
         if (not (web3 is None)):
             is_connected = web3.isConnected()
