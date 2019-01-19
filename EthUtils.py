@@ -200,7 +200,7 @@ def destroyFilter(filter):
                 g_filter_map.pop(filter.filter_id)
             return ret
     except (Exception) as e:
-        info('destroyFilter: e: %s', e)
+        debug('destroyFilter: e: %s', e)
     return None
 
 def createFilter(contract_event_obj, from_block_number, to_block_number, tag):
@@ -215,5 +215,5 @@ def createFilter(contract_event_obj, from_block_number, to_block_number, tag):
             g_filter_map[filter.filter_id] = tag
         return filter
     except (Exception) as e:
-        info('createFilter: e: %s', e)
+        error('createFilter: e: %s', e)
         return None
