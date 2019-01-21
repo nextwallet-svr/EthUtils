@@ -191,21 +191,29 @@ g_filter_map = {}
 
 def destroyFilter(filter):
     global g_filter_map
-    if filter:
-        ret = getWeb3().eth.uninstallFilter(filter.filter_id)
-        if not ret:
-            error("uninstallFilter fail, filter.filter_id: %s", str(filter.filter_id))
-        else:
-            g_filter_map.pop(filter.filter_id)
-        return ret
+    try:
+        if filter:
+            ret = getWeb3().eth.uninstallFilter(filter.filter_id)
+            if not ret:
+                error("uninstallFilter fail, filter.filter_id: %s", str(filter.filter_id))
+            else:
+                g_filter_map.pop(filter.filter_id)
+            return ret
+    except (Exception) as e:
+        debug('destroyFilter: e: %s', e)
+    return None
 
 def createFilter(contract_event_obj, from_block_number, to_block_number, tag):
     global g_filter_map
-    filter_func = getattr(contract_event_obj, 'createFilter')
-    filter = filter_func(fromBlock=from_block_number, toBlock=to_block_number)
-    if not filter:
-        error("createFilter fail, from_block_number: %d, to_block_number: %d",
-                from_block_number, to_block_number)
-    else:
-        g_filter_map[filter.filter_id] = tag
-    return filter
+    try:
+        filter_func = getattr(contract_event_obj, 'createFilter')
+        filter = filter_func(fromBlock=from_block_number, toBlock=to_block_number)
+        if not filter:
+            error("createFilter fail, from_block_number: %d, to_block_number: %d",
+                    from_block_number, to_block_number)
+        else:
+            g_filter_map[filter.filter_id] = tag
+        return filter
+    except (Exception) as e:
+        error('createFilter: e: %s', e)
+        return None
