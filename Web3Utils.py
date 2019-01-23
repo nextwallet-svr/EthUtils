@@ -13,7 +13,6 @@ ws_web3 = None
 def getInfuraWsWeb3():
     global ws_web3
 
-    # INFURA¿ª¹ØÎ´¿ª
     if not INFURA_API_SWITCH_ON:
         return None
 

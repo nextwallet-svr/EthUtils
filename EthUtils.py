@@ -105,7 +105,7 @@ def tryGetTxByHash(tx_hash):
     for i in range(1):
         raw_tx = getWeb3().eth.getTransaction(tx_hash)
         if (raw_tx is None):
-            error('retry GetTxByHash, hash: %s, retry times: %d', tx_hash, i)
+            debug('retry GetTxByHash, hash: %s, retry times: %d', tx_hash, i)
             continue
         else:
             break
